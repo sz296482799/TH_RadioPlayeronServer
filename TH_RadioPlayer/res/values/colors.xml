@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="text_color">#FF425983</color>
+    <color name="selected_color">#FF425983</color>
+    <color name="pressed_color">#FF5C7CB5</color>
+    <color name="list_bg">#33505050</color>
+  <color name="blue">#0000FF</color>
+  <color name="red">#FF0000</color>
+  <color name="green">#0FF0FF</color>
+  <color name="yelloW">#FFFF00</color>
+  <color name="white_color">#FFFFFFFF</color>
+    <color name="blue_color">#FF52E4FE</color>
+
+</resources>

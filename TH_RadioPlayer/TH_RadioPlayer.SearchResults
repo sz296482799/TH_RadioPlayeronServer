@@ -1,0 +1,6 @@
+---- reset Matches (5 in 3 files) ----
+BaseDataUpdater.java (java\com\taihua\th_radioplayer\update):    public void reset(int delay) {
+BaseDataUpdater.java (java\com\taihua\th_radioplayer\update):	        reset(mCheckCycle * 60000);
+MusicPlayer.java (java\com\taihua\th_radioplayer\player):			mPlayer.reset();
+UploadLogUpdater.java (java\com\taihua\th_radioplayer\update):	public void reset(int delay) {
+UploadLogUpdater.java (java\com\taihua\th_radioplayer\update):		reset(mCheckCycle * 60000);

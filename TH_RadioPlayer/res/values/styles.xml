@@ -1,0 +1,59 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="AppBaseTheme" parent="android:Theme.Light"/>
+     
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+
+    <style name="mainButtonStyle">
+        <item name="android:layout_width">230dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:onClick">onClickTest</item>
+        <item name="android:layout_marginLeft">20dp</item>
+        <item name="android:textSize">25dp</item>
+    </style>
+
+    <style name="testButtonStyle">
+        <item name="android:background">#0000FF</item>
+    </style>
+
+    <style name="usbCheckButtonStyle">
+        <item name="android:layout_width">200dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">25dp</item>
+    </style>
+
+    <style name="usbCheckTextViewStyle">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">#0000ff</item>
+        <item name="android:focusable">false</item>
+    </style>
+
+    <style name="lastTextViewStyle">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">#0000ff</item>
+        <item name="android:focusable">false</item>
+    </style>
+
+    <style name="frontpanelKeyStyle">
+        <item name="android:layout_width">120dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_margin">15dip</item>
+        <item name="android:background">@color/blue</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">20dp</item>
+    </style>
+
+    <style name="tunerTestButtonStyle">
+        <item name="android:layout_width">86dp</item>
+        <item name="android:layout_height">70dp</item>
+        <item name="android:textSize">20dp</item>
+    </style>
+
+</resources>

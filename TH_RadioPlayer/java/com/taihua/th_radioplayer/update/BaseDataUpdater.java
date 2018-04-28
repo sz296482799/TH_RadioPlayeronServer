@@ -48,8 +48,8 @@ public class BaseDataUpdater {
 		// TODO Auto-generated method stub
 		mBaseData = PlayerDB.getInstance().getBaseData();
 		if(mBaseData != null) {
-			sendMessage(UPDATE_BASE_DATA, mBaseData.getData().getBase());
-			sendMessage(UPDATE_MUSIC_PACKET_LIST, mBaseData.getData().getMusic());
+			sendMessage(UPDATE_BASE_DATA, 1, 0, mBaseData.getData().getBase());
+			sendMessage(UPDATE_MUSIC_PACKET_LIST, 1, 0, mBaseData.getData().getMusic());
             setCycle(mBaseData.getData().getBase().getBox_check_cycle());
 		}
 	}
@@ -312,29 +312,35 @@ public class BaseDataUpdater {
 	            }
 
 	            if(isUpdateBase(baseData)) {
+					LogUtil.d(TAG, "UpdateBase!");
 	                sendMessage(UPDATE_BASE_DATA, baseData.getData().getBase());
 	                isUpdate = true;
 	            }
 
 	            if(isUpdateMusic(baseData)) {
+					LogUtil.d(TAG, "UpdateMusic!");
 	                sendMessage(UPDATE_MUSIC_PACKET_LIST, mBaseData.getData().getMusic());
 	                isUpdate = true;
 	            }
 
 	            if(checkUpdateChannel(baseData)) {
+					LogUtil.d(TAG, "UpdateChannel!");
 	                isUpdate = true;
 	            }
 
 	            if(isUpdateBroadcast(baseData)) {
 
-	                if(updateBroadcast())
+	                if(updateBroadcast()) {
+						LogUtil.d(TAG, "updateBroadcast!");
 	                    isUpdate = true;
+	                }
 	                else
 	                    baseData.getData().setBroadcast(mBaseData.getData().getBroadcast());
 	            }
 
 	            if(isUpdateCarousel(baseData)) {
 	                if(updateCarousel()) {
+						LogUtil.d(TAG, "updateCarousel!");
 	                    isUpdate = true;
 	                }
 	                else

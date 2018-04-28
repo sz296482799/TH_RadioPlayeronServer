@@ -70,7 +70,7 @@ public class CarouselTimer {
     }
 
     public void touchCarouse(CarouselItem item, boolean isStart) {
-        if(mIsSend && mHandler != null && item != null) {
+        if(mIsSend && mHandler != null && item != null && item.getIsUse()) {
 
 			item.setIsStart(isStart);
 			
@@ -105,6 +105,7 @@ public class CarouselTimer {
 	
 	public static class CarouselItem {
 		private boolean mIsStart = false;
+		private boolean mIsUse = false;
 		private int mCarouselID = -1;
 		private int mPacketID = -1;
 		private int mChannelID = -1;
@@ -116,6 +117,7 @@ public class CarouselTimer {
 			mCarouselID = c.getCa_id();
 			mChannelID = c.getChannel_id();
 			mPlayMode = c.getPlay_mode();
+			mIsUse = c.getIs_refuse() == 1;
 		}
 		
 		public boolean getIsStart() {
@@ -124,6 +126,14 @@ public class CarouselTimer {
 
 		public void setIsStart(boolean isStart) {
 			mIsStart = isStart;
+		}
+
+		public boolean getIsUse() {
+			return mIsUse;
+		}
+
+		public void setIsUse(boolean isUse) {
+			mIsUse = isUse;
 		}
 		
 		public int getCarouselID() {

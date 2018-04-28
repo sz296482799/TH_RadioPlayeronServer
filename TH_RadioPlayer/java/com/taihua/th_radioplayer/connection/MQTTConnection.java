@@ -76,8 +76,16 @@ public class MQTTConnection implements MqttCallback {
 
 	public void tryConnect() {
 		if(mMqttThread != null && !mMqttThread.isConnected() && mMqttThread.isWaitConnect) {
-			LogUtil.d(TAG, "tryConnect!");
+			LogUtil.d(TAG, "tryConnect! start");
 			start();
+		}
+	}
+
+	public void tryConnect(int delayMs) {
+		if(mMqttThread != null && !mMqttThread.isConnected() && mMqttThread.isWaitConnect) {
+			LogUtil.d(TAG, "tryConnect! start");
+			mMqttThread.connect(true, KEEP_ALIVE, delayMs);
+			clientSubscribe(mMqttThread.mClientID, delayMs);
 		}
 	}
 
@@ -87,6 +95,14 @@ public class MQTTConnection implements MqttCallback {
 	    String[] topicName = {clientID};
 	    int[] quality = {0};
         mMqttThread.subscribe(topicName, quality);
+    }
+
+	private void clientSubscribe(String clientID, int delayMs) {
+		if(mMqttThread == null)
+			return;
+	    String[] topicName = {clientID};
+	    int[] quality = {0};
+        mMqttThread.subscribe(topicName, quality, delayMs);
     }
 
     private void clientUnsubscribe(String clientID) {
@@ -111,11 +127,11 @@ public class MQTTConnection implements MqttCallback {
     private synchronized boolean publishSecret(String option, String dataStr) {
 
 		if(!isConnected()) {
-			LogUtil.e(TAG,"publishSecret: no connect!");
+			LogUtil.e(TAG,"publishSecret: no connect! option:" + option);
             return false;
 		}
         if(mClientID == null || mClientTime <= 0) {
-            LogUtil.e(TAG,"publishSecret: no client connect!");
+            LogUtil.e(TAG,"publishSecret: no client connect! option:" + option);
             return false;
         }
 
@@ -255,20 +271,19 @@ public class MQTTConnection implements MqttCallback {
     @Override
     public void connectionLost(Throwable throwable) {
         LogUtil.e(TAG,"Lost! throwable:" + throwable);
+		mMqttThread.disconnect();
 		mMqttThread.connect(true, KEEP_ALIVE);
     }
 
     @Override
     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
         String publishStr = new String(mqttMessage.getPayload());
-        LogUtil.d(TAG,"s:" + s);
-        LogUtil.d(TAG,"mDeviceID:" + mMqttThread.getDeviceID());
-        LogUtil.d(TAG,"b:" + mqttMessage.isRetained());
-        LogUtil.d(TAG,"publishArrived:" + publishStr);
+		
+        LogUtil.d(TAG,"messageArrived:" + publishStr);
         if(s != null && s.equals(mMqttThread.getDeviceID()) && !mqttMessage.isRetained()) {
             PublishItem item = JSON.parseObject(publishStr, PublishItem.class);
             if(item != null) {
-                LogUtil.d(TAG,"PublishItem:" + item);
+                LogUtil.d(TAG,"messageArrived PublishItem:" + item);
                 parse(item);
             }
         }
@@ -388,6 +403,21 @@ public class MQTTConnection implements MqttCallback {
             mHandler.sendMessage(msg);
         }
 
+		private void connect(boolean isCleanStart, short keepLive, int delayMs) {
+            Message msg = new Message();
+
+            mHandler.removeMessages(MSG_CONNECT);
+
+            msg.what = MSG_CONNECT;
+
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("isCleanStart", isCleanStart);
+            bundle.putShort("keepLive", keepLive);
+
+            msg.setData(bundle);
+            mHandler.sendMessageDelayed(msg, delayMs);
+        }
+
         private void disconnect() {
             Message msg = new Message();
 
@@ -419,6 +449,19 @@ public class MQTTConnection implements MqttCallback {
 
             msg.setData(bundle);
             mHandler.sendMessage(msg);
+        }
+
+		private void subscribe(String[] topicName, int[] quality, int delayMs) {
+            Message msg = new Message();
+
+            msg.what = MSG_SUBSCRIBE;
+
+            Bundle bundle = new Bundle();
+            bundle.putStringArray("topicName", topicName);
+            bundle.putIntArray("quality", quality);
+
+            msg.setData(bundle);
+            mHandler.sendMessageDelayed(msg, delayMs);
         }
 
         private void unsubscribe(String[] topicName) {
@@ -472,10 +515,10 @@ public class MQTTConnection implements MqttCallback {
                 }
             } catch (MqttException me) {
                 LogUtil.e(TAG, "MqttThread MqttException:" + me);
-                if((msg.what == MSG_CONNECT || msg.what == MSG_SUBSCRIBE) && !mClient.isConnected() && isWaitConnect) {
-                    LogUtil.e(TAG, "can't connect! retry after 30s!");
+                if((msg.what == MSG_CONNECT) && !mClient.isConnected() && isWaitConnect) {
+                    LogUtil.e(TAG, "can't connect! retry after 10s!");
 					mHandler.removeMessages(MSG_CONNECT);
-                    mHandler.sendMessageDelayed(msg, 30000);
+					connect(msg.getData().getBoolean("isCleanStart"), msg.getData().getShort("keepLive"), 10000);
                 }
             }
             return true;

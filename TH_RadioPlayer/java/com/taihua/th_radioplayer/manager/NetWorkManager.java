@@ -45,6 +45,7 @@ public class NetWorkManager {
     private IntentFilter mFilter;
     private BroadcastReceiver mReceiver;
     private Handler mHandler;
+	private boolean isScanning = false;
 
     // Combo scans can take 5-6s to complete - set to 10s.
     private static final int WIFI_RESCAN_INTERVAL_MS = 10 * 1000;
@@ -64,6 +65,7 @@ public class NetWorkManager {
         mFilter.addAction(WifiManager.RSSI_CHANGED_ACTION);
 		
 		mFilter.addAction(EthernetManager.ETHERNET_STATE_CHANGED_ACTION);
+		mFilter.addAction(EthernetManager.NETWORK_STATE_CHANGED_ACTION);
 
         mReceiver = new BroadcastReceiver() {
             @Override
@@ -179,11 +181,17 @@ public class NetWorkManager {
         mEthManager.setEthernetEnabled(true);
     }
 
-    public void Wifi_Scan() {
+    public void Wifi_Start_Scan() {
         if(!mWifiManager.isWifiEnabled()) {
             mWifiManager.setWifiEnabled(true);
         }
         mScanner.forceScan();
+		isScanning = true;
+    }
+
+	public void Wifi_Stop_Scan() {
+        mScanner.pause();
+		isScanning = false;
     }
 
     public boolean connect(String ssid, String password, int security) {
@@ -300,7 +308,8 @@ public class NetWorkManager {
     }
 
     private void updateAccessPoints() {
-
+		if(!isScanning)
+			return;
         if(mWifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED) {
             List<WifiItem> items = constructAccessPoints();
             if(items != null && items.size() > 0) {
@@ -325,18 +334,19 @@ public class NetWorkManager {
         }
 		else if(EthernetManager.ETHERNET_STATE_CHANGED_ACTION.equals(action)) {
 			int status = intent.getIntExtra(EthernetManager.EXTRA_ETHERNET_STATE, -1);
+			LogUtil.d(TAG, "ETHERNET_STATE_CHANGED_ACTION:" + status);
 			switch (status) {
+				//case EthernetManager.EVENT_PHY_LINK_UP:
                 case EthernetManager.EVENT_DHCP_CONNECT_SUCCESSED:
                 case EthernetManager.EVENT_STATIC_CONNECT_SUCCESSED:
 					sendMessage(NETWORK_MSG_CONNECT, 0, 0, null);
 					break;
+				//case EthernetManager.EVENT_PHY_LINK_DOWN:
 				case EthernetManager.EVENT_DHCP_CONNECT_FAILED:
 				case EthernetManager.EVENT_STATIC_CONNECT_FAILED:
 					sendMessage(NETWORK_MSG_CONNECT, 0, 1, null);
 					break;
 				//case EthernetManager.EVENT_STATIC_DISCONNECT_SUCCESSED:
-                //case EthernetManager.EVENT_PHY_LINK_UP:
-                //case EthernetManager.EVENT_PHY_LINK_DOWN:
                 default:
                     break;
             }

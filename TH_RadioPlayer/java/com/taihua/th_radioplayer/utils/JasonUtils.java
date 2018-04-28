@@ -3,6 +3,7 @@ package com.taihua.th_radioplayer.utils;
 import java.util.List;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -91,6 +92,13 @@ public class JasonUtils {
 			}
 		}
 		return array;
+	}
+
+	public static boolean jsonStrIsEmpty(String jsonStr) {
+		if(jsonStr == null || jsonStr.equals(""))
+			return true;
+		JSONObject jsonObj = JSON.parseObject(jsonStr);
+		return jsonObj == null || jsonObj.isEmpty();
 	}
 	
 }

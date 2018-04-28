@@ -126,7 +126,8 @@ public class MainService extends Service {
                     BaseDataDataBaseIB baseDataIB = (BaseDataDataBaseIB)msg.obj;
                     if(baseDataIB != null) {
                         setBaseData(baseDataIB);
-						mMqttConnection.publishUpdate(Config.Option.get_base_data.getName());
+						if(msg.arg1 == 0)
+							mMqttConnection.publishUpdate(Config.Option.get_base_data.getName());
                     }
                     break;
 
@@ -201,7 +202,7 @@ public class MainService extends Service {
 					break;
 				case NetWorkManager.NETWORK_MSG_CONNECT:
 					if(msg.arg2 == 0) {
-						mMqttConnection.tryConnect();
+						mMqttConnection.tryConnect(1000);
 					}
 					break;
 
@@ -238,7 +239,7 @@ public class MainService extends Service {
         public String onAction(PublishItem item) {
             if(Config.Option.get_base_data.getName().equals(item.getOption())) {
                 String data = item.getData();
-                if(data == null || data.equals("")) {
+                if(JasonUtils.jsonStrIsEmpty(data)) {
                     BaseDataIB baseDataIB = mPlayerDB.getBaseData();
                     if(baseDataIB != null)
                         return JasonUtils.object2JsonString(baseDataIB.getData().getBase());
@@ -255,7 +256,7 @@ public class MainService extends Service {
             }
             else if (Config.Option.get_set_data.getName().equals(item.getOption())) {
                 String data = item.getData();
-                if(data == null || data.equals("")) {
+                if(JasonUtils.jsonStrIsEmpty(data)) {
                     ReturnSetOB returnSetOB = mPlayerDB.getServerData();
                     if(returnSetOB != null)
                         return JasonUtils.object2JsonString(returnSetOB);
@@ -277,7 +278,7 @@ public class MainService extends Service {
             }
             else if (Config.Option.get_music_data.getName().equals(item.getOption())){
                 String data = item.getData();
-                if(data != null || data.equals("")) {
+                if(!JasonUtils.jsonStrIsEmpty(data)) {
                     JSONObject jsonObject = JSON.parseObject(data);
                     if(jsonObject != null) {
                         Integer channel_id = jsonObject.getInteger("channel_id");
@@ -297,7 +298,7 @@ public class MainService extends Service {
             }
             else if (Config.Option.get_play_action.getName().equals(item.getOption())) {
                 String data = item.getData();
-                if(data != null || data.equals("")) {
+                if(!JasonUtils.jsonStrIsEmpty(data)) {
                     JSONObject jsonObject = JSON.parseObject(data);
                     if(jsonObject != null) {
                         Integer action_id = jsonObject.getInteger("action_id");
@@ -465,14 +466,14 @@ public class MainService extends Service {
         mPlayerDB = PlayerDB.getInstance();
         mAudioManager = (AudioManager)getSystemService(Service.AUDIO_SERVICE);
         mBluetoothManager = BluetoothManager.getInstance();
-		//mNetworkManager = NetWorkManager.getInstance();
+		mNetworkManager = NetWorkManager.getInstance();
 		mMqttConnection = MQTTConnection.getInstance();
 
 		AlarmManager.getInstance().init(this);
 
 		mPlayerDB.init(this);
 
-		//mNetworkManager.init(this, mHandler);
+		mNetworkManager.init(this, mHandler);
 		mBluetoothManager.init(this, mHandler);
 		
         mStorageManager.init(this, mHandler);
